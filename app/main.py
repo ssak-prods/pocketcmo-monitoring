@@ -70,7 +70,11 @@ async def ingest_log(data: LogIngestRequest, background_tasks: BackgroundTasks, 
 async def read_dashboard(request: Request, db: Session = Depends(get_db)):
     """Render the dashboard UI."""
     logs = db.query(ErrorLog).order_by(ErrorLog.timestamp.desc()).limit(50).all()
-    return templates.TemplateResponse("dashboard.html", {"request": request, "logs": logs})
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={"logs": logs}
+    )
 
 if __name__ == "__main__":
     import uvicorn
