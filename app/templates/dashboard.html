@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketCMO Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .raw-error { display: none; }
+        .raw-error.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+    <nav class="bg-indigo-900 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">📡 PocketCMO Alert Monitor</h1>
+            <div class="text-sm border border-indigo-400 px-3 py-1 rounded">Live Production Monitoring</div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 mt-6">
+        <div class="bg-white rounded shadow p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Latest System Events</h2>
+            
+            {% if logs %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white text-sm">
+                        <thead class="bg-gray-50 text-gray-600">
+                            <tr>
+                                <th class="text-left py-3 px-4 uppercase font-semibold">Time</th>
+                                <th class="text-left py-3 px-4 uppercase font-semibold">Level</th>
+                                <th class="text-left py-3 px-4 uppercase font-semibold">Service</th>
+                                <th class="text-left py-3 px-4 uppercase font-semibold">Message</th>
+                                <th class="text-left py-3 px-4 uppercase font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            {% for log in logs %}
+                                <tr class="border-b hover:bg-gray-50 transition">
+                                    <td class="py-3 px-4 whitespace-nowrap">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td class="py-3 px-4">
+                                        {% if log.level == 'ERROR' or log.level == 'CRITICAL' %}
+                                            <span class="bg-red-100 text-red-800 py-1 px-2 rounded font-medium text-xs">{{ log.level }}</span>
+                                        {% elif log.level == 'WARNING' %}
+                                            <span class="bg-yellow-100 text-yellow-800 py-1 px-2 rounded font-medium text-xs">{{ log.level }}</span>
+                                        {% else %}
+                                            <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded font-medium text-xs">{{ log.level }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 px-4 font-medium">{{ log.service_name }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="font-semibold text-gray-900">{{ log.message }}</div>
+                                        <div class="text-gray-600 text-xs mt-1 border-l-2 border-indigo-300 pl-2">
+                                            <strong>AI Summary:</strong> {{ log.ai_summary }}
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="toggleError('error-{{ log.id }}')" class="text-indigo-600 hover:text-indigo-900 underline text-xs">
+                                            View Raw Error
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr id="error-{{ log.id }}" class="raw-error bg-gray-900 text-green-400 font-mono text-xs p-0 m-0">
+                                    <td colspan="5" class="p-4 whitespace-pre-wrap break-all">{{ log.raw_error }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-gray-500 italic">No events logged yet. System is healthy!</p>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        function toggleError(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
