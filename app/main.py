@@ -21,9 +21,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PocketCMO Monitor", lifespan=lifespan)
 
-# Setup templates and static (we will create templates folder next)
-# Using generic paths but will run from the root of pocketcmo-monitor
-templates = Jinja2Templates(directory="app/templates")
+from pathlib import Path
+
+# Setup templates via absolute path so Railway never misses it
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 class LogIngestRequest(BaseModel):
     service_name: str
